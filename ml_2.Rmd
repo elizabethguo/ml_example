@@ -117,7 +117,7 @@ metrics(data = x_2, truth = dvote, estimate = pred_dvote) %>%
 
 ```{r unncessary variables?}
 
-model_3 <- glm(data = clean, dvote ~ party + state, family = "binomial")
+model_3 <- glm(data = clean, dvote ~ gender + party, family = "binomial")
 
 x_3 <- clean %>% 
   mutate(prediction = predict(model_3, type = "response")) %>% 
