@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 library(fs)
 library(tidymodels)
+library(yardstick)
+library(gt)
 library(tidyverse)
 
 ```
@@ -19,6 +21,8 @@ library(tidyverse)
 ```{r download, cache=TRUE}
 # Mostly the same code as Tuesday, but cleaned up. Do you understand what every
 # line does? If not, ask your partner!
+
+# cache = TRUE so it doesn't run every time. 
 
 download.file(url = "https://github.com/TheUpshot/2018-live-poll-results/archive/master.zip",
               destfile = "master.zip",
@@ -86,6 +90,44 @@ x_1 <- clean %>%
 
 ```
 
+
+```{r how good is this model?}
+
+# kappa is you did this percent better than a random guess
+
+metrics(data = x_1, truth = dvote, estimate = pred_dvote) %>% 
+  gt() %>% 
+  tab_header("Model 1 Performance")
+
+```
+
+```{r make a better model and test it}
+
+model_2 <- glm(data = clean, dvote ~ gender + party + state + office, family = "binomial")
+
+x_2 <- clean %>% 
+  mutate(prediction = predict(model_2, type = "response")) %>% 
+  mutate(pred_dvote = as.factor(ifelse(prediction > mean(prediction), "Yes", "No")))
+
+metrics(data = x_2, truth = dvote, estimate = pred_dvote) %>% 
+  gt() %>% 
+  tab_header("Model 2 Performance")
+
+```
+
+```{r unncessary variables?}
+
+model_3 <- glm(data = clean, dvote ~ party + state, family = "binomial")
+
+x_3 <- clean %>% 
+  mutate(prediction = predict(model_3, type = "response")) %>% 
+  mutate(pred_dvote = as.factor(ifelse(prediction > mean(prediction), "Yes", "No")))
+
+metrics(data = x_3, truth = dvote, estimate = pred_dvote) %>% 
+  gt() %>% 
+  tab_header("Model 3 Performance")
+
+```
 
 
 
